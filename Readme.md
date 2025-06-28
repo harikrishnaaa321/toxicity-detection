@@ -30,7 +30,7 @@ The service runs **fully offline**, leverages a **DistilBERT model in ONNX forma
 .
 ├── classifier.py            # Core inference logic using ONNX model
 ├── main.py                  # FastAPI app with REST endpoints
-├── toxicity_distilbert.onnx # Pretrained DistilBERT ONNX model
+├── model.onnx               # Pretrained DistilBERT ONNX model
 ├── tokenizer/               # Tokenizer files from HuggingFace (saved locally)
 ├── config.json              # Configurable thresholds and enabled categories
 ├── requirements.txt         # Python dependencies
@@ -62,7 +62,7 @@ The service runs **fully offline**, leverages a **DistilBERT model in ONNX forma
    DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased").save_pretrained("./tokenizer")
    ```
 
-4. **Run the Application**
+4. **Run the Application Locally (Without Docker)**
 
    ```bash
    uvicorn main:app --host 0.0.0.0 --port 8000
@@ -84,15 +84,36 @@ The service runs **fully offline**, leverages a **DistilBERT model in ONNX forma
    docker run -p 8000:8000 toxicity-detector
    ```
 
+> **Note:** When running with Docker, you do not need to manually execute `uvicorn main:app --host 0.0.0.0 --port 8000`. This command is already included in the Dockerfile's `CMD` and will be automatically executed when the container starts.
+
 ---
 
 ## Model Details
 
-* **Model:** DistilBERT (ONNX format)
-* **Tokenizer:** DistilBERT Tokenizer (saved locally)
-* **ONNX Runtime:** Used for fast, offline inference
-* **Inference Time:** Less than 1 second per input
-* **Categories:** toxic, insult, harassment (configurable)
+* **Initial Attempt:** Logistic Regression with TF-IDF features was tested but showed poor performance, particularly in detecting nuanced and context-dependent toxicity.
+* **Model:** DistilBERT fine-tuned for multi-label toxicity detection.
+* **Training:** Fine-tuned using public datasets (e.g., Jigsaw dataset) for detecting multiple toxicity categories.
+* **Format:** Exported to ONNX for fast, offline inference.
+* **Tokenizer:** DistilBERT Tokenizer (saved locally).
+* **Inference Engine:** ONNX Runtime.
+* **Sequence Length:** 128 tokens (balanced for speed and accuracy).
+* **Model Size:** \~265 MB.
+* **Inference Time:** < 1 second per input.
+* **Categories Detected:** Toxic, Insult, Harassment (fully configurable).
+* **Loss Function:** Weighted Binary Cross-Entropy to handle imbalanced class distribution.
+* **Multi-label Classification:** Supports detection of multiple toxicity types in a single input.
+* **Training Customization:** Custom model trained using class-specific positive weights to improve minority class recall.
+* **Thresholding:** Runtime-controlled via `config.json` to allow flexible decision boundaries without retraining.
+* **Additional Training Details:**
+
+  * Applied dynamic threshold optimization during training using precision-recall curve analysis.
+  * Early experimentation with logistic regression and TF-IDF confirmed that transformer-based models significantly outperform traditional approaches in precision and recall, especially on borderline and context-sensitive toxic content.
+  * Positional weighting and multi-label calibration were crucial to managing the dataset's class imbalance.
+* **Advantages Over Traditional Models:**
+
+  * Superior semantic understanding.
+  * Robust against varied phrasing and implicit toxicity.
+  * Efficient ONNX inference ensures low-latency, offline performance.
 
 ---
 
@@ -159,6 +180,15 @@ Returns the current model version.
 * **enabled\_categories:** Categories to monitor and detect.
 
 ---
+
+## Testing Scenarios
+
+| Text Example                       | Expected Score | Label   | Action   |
+| ---------------------------------- | -------------- | ------- | -------- |
+| "You're a failure and a disgrace." | > 0.80         | toxic   | blocked  |
+| "This is kind of dumb tbh"         | \~0.60         | flagged | flagged  |
+| "Great job on your article!"       | < 0.30         | safe    | approved |
+| "बकवास पोस्ट है" (in Hindi)        | \~0.50         | flagged | flagged  |
 
 ---
 
