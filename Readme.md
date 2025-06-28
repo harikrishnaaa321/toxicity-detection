@@ -198,7 +198,3 @@ Returns the current model version.
 * **API-Only:** No user interface provided.
 
 ---
-
-## License
-
-MIT License (or specify your own license).
