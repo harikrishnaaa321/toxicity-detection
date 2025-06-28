@@ -1,0 +1,5 @@
+{
+  "toxicity_threshold": 0.75,
+  "flag_threshold": 0.5,
+  "enabled_categories": ["toxic", "harassment", "obscene", "threat", "insult", "identity_hate"]
+}
