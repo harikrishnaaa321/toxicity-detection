@@ -1,97 +1,120 @@
-Toxicity & Abuse Detection Microservice
-An AI-powered FastAPI microservice for detecting toxic, abusive, bullying, or inappropriate language in user-generated content.
-The service runs fully offline, leverages a DistilBERT model in ONNX format, and is Dockerized for easy deployment.
+# Toxicity & Abuse Detection Microservice
 
-Features
-Predicts toxicity scores and flags harmful content.
+An **AI-powered FastAPI microservice** for detecting toxic, abusive, bullying, or inappropriate language in user-generated content.
+The service runs **fully offline**, leverages a **DistilBERT model in ONNX format**, and is **Dockerized** for seamless deployment.
 
-Returns structured JSON with:
+---
 
-Toxicity Score
+## Features
 
-Action (approved, flagged, blocked)
+* Predicts toxicity scores and flags harmful content.
+* Returns structured JSON with:
 
-Reasons (categories like insult, harassment, etc.)
+  * **Toxicity Score**
+  * **Action** (approved, flagged, blocked)
+  * **Reasons** (categories like insult, harassment, etc.)
+* Uses **DistilBERT + ONNX Runtime** for fast, efficient inference.
+* Configurable via `config.json`.
+* REST API built with **FastAPI**.
+* Exposes:
 
-Uses DistilBERT + ONNX Runtime for fast inference.
+  * `POST /analyze-text`
+  * `GET /health`
+  * `GET /version`
 
-Configurable via config.json.
+---
 
-REST API built with FastAPI.
+## Project Structure
 
-Exposes the following endpoints:
-
-POST /analyze-text
-
-GET /health
-
-GET /version
-
-Project Structure
-graphql
-Copy
-Edit
+```text
 .
-├── classifier.py           # Core inference logic using ONNX model
-├── main.py                 # FastAPI app with REST endpoints
-├── toxicity_distilbert.onnx# Pretrained DistilBERT ONNX model
-├── tokenizer/              # Tokenizer files from HuggingFace (saved locally)
-├── config.json             # Configurable thresholds and enabled categories
-├── requirements.txt        # Python dependencies
-├── Dockerfile              # Docker container setup
-└── README.md               # Documentation
-Installation (Local Setup)
-Clone the repository:
+├── classifier.py            # Core inference logic using ONNX model
+├── main.py                  # FastAPI app with REST endpoints
+├── toxicity_distilbert.onnx # Pretrained DistilBERT ONNX model
+├── tokenizer/               # Tokenizer files from HuggingFace (saved locally)
+├── config.json              # Configurable thresholds and enabled categories
+├── requirements.txt         # Python dependencies
+├── Dockerfile               # Docker container setup
+└── README.md                # Documentation
+```
 
-bash
-Copy
-Edit
-git clone <your-repo-url>
-cd toxicity-detector
-Install dependencies:
+---
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Run the application:
+## Compulsory Installation
 
-bash
-Copy
-Edit
-uvicorn main:app --host 0.0.0.0 --port 8000
-Docker Deployment
-Build the Docker image:
+1. **Clone the Repository**
 
-bash
-Copy
-Edit
-docker build -t toxicity-detector .
-Run the Docker container:
+   ```bash
+   git clone <https://github.com/harikrishnaaa321/toxicity-detection.git>
+   cd toxicity-detector
+   ```
 
-bash
-Copy
-Edit
-docker run -p 8000:8000 toxicity-detector
-API Endpoints
-POST /analyze-text
-Analyzes input text for toxicity and returns structured results.
+2. **Install Dependencies**
 
-Request Example:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-json
-Copy
-Edit
+3. **Tokenizer Setup (Must Do)** You must save the tokenizer files locally:
+
+   ```python
+   from transformers import DistilBertTokenizerFast
+   DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased").save_pretrained("./tokenizer")
+   ```
+
+4. **Run the Application**
+
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000
+   ```
+
+---
+
+## Docker Deployment
+
+1. **Build the Docker Image**
+
+   ```bash
+   docker build -t toxicity-detector .
+   ```
+
+2. **Run the Docker Container**
+
+   ```bash
+   docker run -p 8000:8000 toxicity-detector
+   ```
+
+---
+
+## Model Details
+
+* **Model:** DistilBERT (ONNX format)
+* **Tokenizer:** DistilBERT Tokenizer (saved locally)
+* **ONNX Runtime:** Used for fast, offline inference
+* **Inference Time:** Less than 1 second per input
+* **Categories:** toxic, insult, harassment (configurable)
+
+---
+
+## API Endpoints
+
+### POST `/analyze-text`
+
+Analyzes input text for toxicity.
+
+**Request Example:**
+
+```json
 {
   "user_id": "stu_5044",
   "post_id": "post_0988",
   "text": "You are so dumb and your post is pathetic"
 }
-Response Example:
+```
 
-json
-Copy
-Edit
+**Response Example:**
+
+```json
 {
   "user_id": "stu_5044",
   "post_id": "post_0988",
@@ -101,68 +124,81 @@ Edit
   "reasons": ["insult", "harassment"],
   "threshold": 0.75
 }
-GET /health
-Returns service health status.
+```
 
-Response:
+### GET `/health`
 
-json
-Copy
-Edit
+Returns the service health status.
+
+```json
 { "status": "ok" }
-GET /version
-Returns current model version.
+```
 
-Response:
+### GET `/version`
 
-json
-Copy
-Edit
+Returns the current model version.
+
+```json
 { "model_version": "1.0.0" }
-Configuration (config.json)
-json
-Copy
-Edit
+```
+
+---
+
+## Configuration (config.json)
+
+```json
 {
   "toxicity_threshold": 0.75,
   "flag_threshold": 0.5,
   "enabled_categories": ["toxic", "insult", "harassment"]
 }
-toxicity_threshold: Score above which content is marked as toxic.
+```
 
-flag_threshold: Score range for flagged (potentially harmful) content.
+* **toxicity\_threshold:** Posts above this score are blocked.
+* **flag\_threshold:** Posts in this range are flagged.
+* **enabled\_categories:** Categories to monitor and detect.
 
-enabled_categories: Categories to evaluate in the prediction.
+---
 
-Testing Scenarios
-Text Example	Expected Score	Label	Action
-"You're a failure and a disgrace."	> 0.80	toxic	blocked
-"This is kind of dumb tbh"	~0.60	flagged	flagged
-"Great job on your article!"	< 0.30	safe	approved
-"बकवास पोस्ट है" (in Hindi)	~0.50	flagged	flagged
+---
 
-Requirements
-fastapi
+## Test Results
 
-uvicorn
+| Sentence                                               | Toxicity Score | Label   | Action   | Reasons                            |
+| ------------------------------------------------------ | -------------- | ------- | -------- | ---------------------------------- |
+| You are a worthless idiot                              | 1.00           | toxic   | blocked  | toxic, harassment, insult          |
+| Your existence is disgusting and unwanted.             | 0.97           | toxic   | blocked  | toxic                              |
+| Go back to where you came from, no one wants you here. | 0.92           | toxic   | blocked  | toxic                              |
+| You are a dumb, ugly loser.                            | 1.00           | toxic   | blocked  | toxic, harassment, insult          |
+| Nobody likes your pathetic face.                       | 0.98           | toxic   | blocked  | toxic, insult                      |
+| I hope you have a great day!                           | 0.02           | safe    | approved | \[]                                |
+| Let’s work together on this project                    | 0.01           | safe    | approved | \[]                                |
+| I appreciate your kindness and support.                | 0.04           | safe    | approved | \[]                                |
+| Wow, you really know how to mess things up, don’t you? | 0.51           | flagged | flagged  | toxic                              |
+| You’re not as smart as you think.                      | 0.62           | flagged | flagged  | toxic                              |
+| You never listen, it’s annoying                        | 0.72           | flagged | flagged  | toxic                              |
+| Get the hell out, you moron                            | 1.00           | toxic   | blocked  | toxic, harassment, obscene, insult |
 
-numpy
+---
 
-transformers
+## Key Requirements
 
-onnxruntime
+* fastapi
+* uvicorn
+* numpy
+* transformers
+* onnxruntime
 
-Make sure the tokenizer is saved locally:
+---
 
-python
-Copy
-Edit
-from transformers import DistilBertTokenizerFast
-DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased").save_pretrained("./tokenizer")
-Notes
-Offline-Only: Fully self-contained, no external API calls.
+## Notes
 
-Performance: Inference time < 1 second per text input.
+* **Offline-Only:** Entirely self-contained, no external API calls.
+* **Performance:** Less than 1 second per inference.
+* **API-Only:** No user interface provided.
 
-No UI: JSON-based API only.
+---
 
+## License
+
+MIT License (or specify your own license).
