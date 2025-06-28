@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ToxicityAnalysisOutput",
+  "type": "object",
+  "required": ["user_id", "post_id", "toxicity_score", "label", "action", "reasons", "threshold"],
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID associated with the submitted text"
+    },
+    "post_id": {
+      "type": "string",
+      "description": "Post ID of the text analyzed"
+    },
+    "toxicity_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall predicted toxicity score (0 to 1)"
+    },
+    "label": {
+      "type": "string",
+      "enum": ["safe", "flagged", "toxic", "abusive", "severe"],
+      "description": "Final classification label based on thresholds"
+    },
+    "action": {
+      "type": "string",
+      "enum": ["approved", "flagged", "blocked"],
+      "description": "Suggested moderation action"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["toxic", "insult", "harassment", "obscene", "threat", "identity_hate"]
+      },
+      "description": "Toxic sub-categories detected"
+    },
+    "threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Threshold value that led to final label/action decision"
+    }
+  }
+}

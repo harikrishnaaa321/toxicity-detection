@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ToxicityAnalysisInput",
+  "type": "object",
+  "required": ["user_id", "post_id", "text"],
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Unique identifier for the user submitting the comment"
+    },
+    "post_id": {
+      "type": "string",
+      "description": "Unique identifier of the post or comment"
+    },
+    "text": {
+      "type": "string",
+      "description": "Text content to be analyzed for toxicity"
+    }
+  }
+}
