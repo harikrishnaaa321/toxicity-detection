@@ -1,0 +1,13 @@
+sentence,toxicity_score,label,action,reasons
+You are a worthless idiot,1,toxic,blocked,"toxic,harassment,insult"
+Your existence is disgusting and unwanted.,0.97,toxic,blocked,toxic
+"Go back to where you came from, no one wants you here.",0.92,toxic,blocked,toxic
+"You are a dumb, ugly loser.",1,toxic,blocked,"toxic,harassment,insult"
+Nobody likes your pathetic face.,0.98,toxic,blocked,"toxic,insult"
+"I hope you have a great day!,",0.02,safe,approved,[]
+Let’s work together on this project,0.01,safe,approved,[]
+I appreciate your kindness and support.,0.04,safe,approved,[]
+"Wow, you really know how to mess things up, don’t you?",0.51,flagged,flagged,toxic
+You’re not as smart as you think.,0.62,flagged,flagged,toxic
+"You never listen, it’s annoying",0.72,flagged,flagged,toxic
+"Get the hell out, you moron",1,toxic,blocked,"toxic,harassment,obscene,insult"
