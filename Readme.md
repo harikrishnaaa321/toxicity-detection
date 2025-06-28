@@ -1,9 +1,8 @@
-🛡️ Toxicity & Abuse Detection Microservice
+Toxicity & Abuse Detection Microservice
+An AI-powered FastAPI microservice for detecting toxic, abusive, bullying, or inappropriate language in user-generated content.
+The service runs fully offline, leverages a DistilBERT model in ONNX format, and is Dockerized for easy deployment.
 
-An AI-powered FastAPI microservice to detect toxic, abusive, bullying, or inappropriate language in user-generated posts. The service runs fully offline, leverages a DistilBERT model in ONNX format, and is Dockerized for easy deployment.
-
-🚀 Features
-
+Features
 Predicts toxicity scores and flags harmful content.
 
 Returns structured JSON with:
@@ -20,10 +19,18 @@ Configurable via config.json.
 
 REST API built with FastAPI.
 
-Exposes /analyze-text, /health, and /version endpoints.
+Exposes the following endpoints:
 
-📁 Project Structure
+POST /analyze-text
 
+GET /health
+
+GET /version
+
+Project Structure
+graphql
+Copy
+Edit
 .
 ├── classifier.py           # Core inference logic using ONNX model
 ├── main.py                 # FastAPI app with REST endpoints
@@ -33,48 +40,58 @@ Exposes /analyze-text, /health, and /version endpoints.
 ├── requirements.txt        # Python dependencies
 ├── Dockerfile              # Docker container setup
 └── README.md               # Documentation
+Installation (Local Setup)
+Clone the repository:
 
-🔧 Installation (Locally)
-
-Clone this repo:
-
+bash
+Copy
+Edit
 git clone <your-repo-url>
 cd toxicity-detector
-
 Install dependencies:
 
+bash
+Copy
+Edit
 pip install -r requirements.txt
+Run the application:
 
-Run the app:
-
+bash
+Copy
+Edit
 uvicorn main:app --host 0.0.0.0 --port 8000
-
-🐳 Docker Deployment
-
+Docker Deployment
 Build the Docker image:
 
+bash
+Copy
+Edit
 docker build -t toxicity-detector .
+Run the Docker container:
 
-Run the container:
-
+bash
+Copy
+Edit
 docker run -p 8000:8000 toxicity-detector
-
-🔌 API Endpoints
-
+API Endpoints
 POST /analyze-text
+Analyzes input text for toxicity and returns structured results.
 
-Analyze text for toxicity and get structured results.
+Request Example:
 
-Request:
-
+json
+Copy
+Edit
 {
   "user_id": "stu_5044",
   "post_id": "post_0988",
   "text": "You are so dumb and your post is pathetic"
 }
+Response Example:
 
-Response:
-
+json
+Copy
+Edit
 {
   "user_id": "stu_5044",
   "post_id": "post_0988",
@@ -84,97 +101,68 @@ Response:
   "reasons": ["insult", "harassment"],
   "threshold": 0.75
 }
-
 GET /health
+Returns service health status.
 
-Check service health.
+Response:
 
+json
+Copy
+Edit
 { "status": "ok" }
-
 GET /version
+Returns current model version.
 
-Get current model version.
+Response:
 
+json
+Copy
+Edit
 { "model_version": "1.0.0" }
-
-⚙️ Config (config.json)
-
+Configuration (config.json)
+json
+Copy
+Edit
 {
   "toxicity_threshold": 0.75,
   "flag_threshold": 0.5,
   "enabled_categories": ["toxic", "insult", "harassment"]
 }
+toxicity_threshold: Score above which content is marked as toxic.
 
-toxicity_threshold: Score above which a post is marked toxic.
+flag_threshold: Score range for flagged (potentially harmful) content.
 
-flag_threshold: Score range for flagged content.
+enabled_categories: Categories to evaluate in the prediction.
 
-enabled_categories: Categories to evaluate in prediction.
+Testing Scenarios
+Text Example	Expected Score	Label	Action
+"You're a failure and a disgrace."	> 0.80	toxic	blocked
+"This is kind of dumb tbh"	~0.60	flagged	flagged
+"Great job on your article!"	< 0.30	safe	approved
+"बकवास पोस्ट है" (in Hindi)	~0.50	flagged	flagged
 
-🧪 Testing Scenarios
-
-Text Example
-
-Expected Score
-
-Label
-
-Action
-
-"You're a failure and a disgrace."
-
-> 0.80
-
-toxic
-
-blocked
-
-"This is kind of dumb tbh"
-
-~0.60
-
-flagged
-
-flagged
-
-"Great job on your article!"
-
-< 0.30
-
-safe
-
-approved
-
-"बकवास पोस्ट है" (in Hindi)
-
-~0.50
-
-flagged
-
-flagged
-
-📆 Requirements
-
+Requirements
 fastapi
+
 uvicorn
+
 numpy
+
 transformers
+
 onnxruntime
 
-Make sure your tokenizer is saved locally (tokenizer/) using:
+Make sure the tokenizer is saved locally:
 
+python
+Copy
+Edit
 from transformers import DistilBertTokenizerFast
 DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased").save_pretrained("./tokenizer")
+Notes
+Offline-Only: Fully self-contained, no external API calls.
 
-📌 Notes
-
-Offline-Only: No external API calls; uses ONNX model and local tokenizer.
-
-Performance: Inference time < 1s per text input.
+Performance: Inference time < 1 second per text input.
 
 No UI: JSON-based API only.
-
-📜 License
-
-MIT License (or specify yours)
 
