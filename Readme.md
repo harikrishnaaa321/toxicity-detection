@@ -16,6 +16,7 @@ The service runs **fully offline**, leverages a **DistilBERT model in ONNX forma
 * Uses **DistilBERT + ONNX Runtime** for fast, efficient inference.
 * Configurable via `config.json`.
 * REST API built with **FastAPI**.
+* Language detection: If the input text is not in English, it is auto-flagged without being passed to the model.
 * Exposes:
 
   * `POST /analyze-text`
@@ -114,6 +115,7 @@ The service runs **fully offline**, leverages a **DistilBERT model in ONNX forma
   * Superior semantic understanding.
   * Robust against varied phrasing and implicit toxicity.
   * Efficient ONNX inference ensures low-latency, offline performance.
+  * Language detection mechanism: Non-English texts are auto-flagged without processing through the model to optimize response time and prevent model misuse.
 
 ---
 
@@ -181,16 +183,6 @@ Returns the current model version.
 
 ---
 
-## Testing Scenarios
-
-| Text Example                       | Expected Score | Label   | Action   |
-| ---------------------------------- | -------------- | ------- | -------- |
-| "You're a failure and a disgrace." | > 0.80         | toxic   | blocked  |
-| "This is kind of dumb tbh"         | \~0.60         | flagged | flagged  |
-| "Great job on your article!"       | < 0.30         | safe    | approved |
-| "बकवास पोस्ट है" (in Hindi)        | \~0.50         | flagged | flagged  |
-
----
 
 ## Test Results
 
@@ -228,3 +220,4 @@ Returns the current model version.
 * **API-Only:** No user interface provided.
 
 ---
+
