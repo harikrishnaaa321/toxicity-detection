@@ -93,14 +93,14 @@ The service runs **fully offline**, leverages a **DistilBERT model in ONNX forma
 
 * **Initial Attempt:** Logistic Regression with TF-IDF features was tested but showed poor performance, particularly in detecting nuanced and context-dependent toxicity.
 * **Model:** DistilBERT fine-tuned for multi-label toxicity detection.
-* **Training:** Fine-tuned using public datasets (e.g., Jigsaw dataset) for detecting multiple toxicity categories.
+* **Training:** Fine-tuned using public datasets (Jigsaw dataset) for detecting multiple toxicity categories.
 * **Format:** Exported to ONNX for fast, offline inference.
 * **Tokenizer:** DistilBERT Tokenizer (saved locally).
 * **Inference Engine:** ONNX Runtime.
 * **Sequence Length:** 128 tokens (balanced for speed and accuracy).
 * **Model Size:** \~265 MB.
 * **Inference Time:** < 1 second per input.
-* **Categories Detected:** Toxic, Insult, Harassment (fully configurable).
+* **Categories Detected:** Toxic, Insult, Harassment, Obscene, Identity Hate, Threat(fully configurable).
 * **Loss Function:** Weighted Binary Cross-Entropy to handle imbalanced class distribution.
 * **Multi-label Classification:** Supports detection of multiple toxicity types in a single input.
 * **Training Customization:** Custom model trained using class-specific positive weights to improve minority class recall.
